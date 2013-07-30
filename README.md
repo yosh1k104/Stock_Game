@@ -1,4 +1,4 @@
 Stock_Game
 ===========
 
-netpro client-base
+Network_Programming stock_client
