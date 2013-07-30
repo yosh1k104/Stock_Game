@@ -27,7 +27,6 @@ struct company{
 };
 
 
-
 void act(int sfd, struct company companies[10], int turn, uint32_t temp, uint32_t key){
   printf("\n*****ACTION*****\n");
 
@@ -77,9 +76,6 @@ void comfirm(size_t len, int sfd, uint32_t buf, struct company companies[10], ui
       }else if(code == ERR_SAL){
 	printf("Cannot sell!\n");
       }
-
-
-
       
       printf("act_code:%u\n", code);
     }else if(i > 1){
@@ -117,7 +113,6 @@ int showResult(size_t len, int sfd, uint32_t buf){
       printf("budget");
     }
     printf(":%u\n", ntohl(buf));
-
 
   }
   return 0;
@@ -202,9 +197,6 @@ int main(int argc, char *argv[]){
 	}
 	
 	
-	
-	
-	
 	act(sfd, companies, turn, temp, key);
 
 	comfirm(len, sfd, buf, companies, key, code, num);
@@ -215,6 +207,8 @@ int main(int argc, char *argv[]){
 	
       showResult(len, sfd, buf);
       
+      break;
+
     }
   }
 
@@ -222,8 +216,6 @@ int main(int argc, char *argv[]){
     fprintf(stderr, "Could not connect!\n");
     exit(1);
   }
-
-  freeaddrinfo(result);
 
   close(sfd);
 
