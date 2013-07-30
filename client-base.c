@@ -16,14 +16,15 @@
 #define ERR_PUR 0x00000404
 #define ERR_SAL 0x00000405
 
+#define STOCKS 1
+#define TURN 60
+
 
 
 struct company{
   uint32_t id;
   uint32_t price;
 };
-
-
 
 
 
@@ -43,7 +44,7 @@ void act(int sfd, struct company companies[10], int turn, uint32_t temp, uint32_
   temp = htonl(companies[0].id);
   printf("buy_id:%u\n", temp);
   write(sfd, &temp, sizeof(temp));
-  temp = htonl(1);
+  temp = htonl(STOCKS);
   printf("buy_value:%u\n\n", temp);
   write(sfd, &temp, sizeof(temp)); 
 }
@@ -99,17 +100,27 @@ void comfirm(size_t len, int sfd, uint32_t buf, struct company companies[10], ui
 }
 
 
-void showResult(size_t len, int sfd, uint32_t buf){
+int showResult(size_t len, int sfd, uint32_t buf){
   printf("\n*****RESULT*****\n");
 
-  len = read(sfd, &buf, sizeof(buf));
-  printf("end_key:%u\n", ntohl(buf));
-  len = read(sfd, &buf, sizeof(buf));
-  printf("end_code:%u\n", ntohl(buf));
-  len = read(sfd, &buf, sizeof(buf));
-  printf("end_rank:%u\n", ntohl(buf));
-  len = read(sfd, &buf, sizeof(buf));
-  printf("end_budget:%u\n", ntohl(buf));
+  int i;
+  for(i = 0; i < 4; i++){
+    len = read(sfd, &buf, sizeof(buf));
+    
+    if(i == 0){
+      printf("last_key");
+    }else if(i == 1){
+      printf("last_code");
+    }else if(i == 2){
+      printf("rank");
+    }else if(i == 3){
+      printf("budget");
+    }
+    printf(":%u\n", ntohl(buf));
+
+
+  }
+  return 0;
 }
 
 
@@ -121,7 +132,7 @@ int main(int argc, char *argv[]){
 
   size_t len;
 
-  uint32_t buf;
+  uint32_t buf = 0;
   uint32_t key = 0;
   uint32_t code = 0;
   uint32_t temp;
@@ -156,19 +167,17 @@ int main(int argc, char *argv[]){
       printf("Connected!\n\n");
 
       int turn;
-      for(turn = 0; turn < 60; turn++){
+      for(turn = 0; turn < TURN; turn++){
 	int i;
 	int num = 0;
 
-	printf("===========TURN#%d============\n", turn);
+	printf("===========TURN#%d============\n", turn + 1);
 
 
 
 	for(i = 0; i < 22; i++){
 	  
-	  
 	  len = read(sfd, &buf, sizeof(buf));
-	  
 	  
 	  if(i == 0){
 	    
@@ -182,14 +191,9 @@ int main(int argc, char *argv[]){
 	  }else if(i > 1){
 	    if(i % 2 == 0){
 	      companies[num].id = ntohl(buf);
-	      //     printf("buf:%x\n", buf);
-	      
 	      printf("company#%u\t", companies[num].id);
-	      
 	    }else if(i % 2 == 1){
 	      companies[num].price = ntohl(buf);
-	      
-	      // printf("buf:%x\n", buf);
 	      printf("price:%u\n\n", companies[num].price);
 	      num = num + 1;
 	      
@@ -204,13 +208,13 @@ int main(int argc, char *argv[]){
 	act(sfd, companies, turn, temp, key);
 
 	comfirm(len, sfd, buf, companies, key, code, num);
-	
+
+
       }//while end
       
-
+	
       showResult(len, sfd, buf);
-
-      break;
+      
     }
   }
 
