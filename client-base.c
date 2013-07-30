@@ -81,61 +81,6 @@ int main(int argc, char *argv[]){
     if(connect(sfd, rp->ai_addr, rp->ai_addrlen) != -1){
       printf("Connected!\n\n");
 
-      //      len = read(sfd, &start, sizeof(start));
-      //printf("start:%s\n", start);
-      
-
-      /*
-      while(key == 0){
-	len = read(sfd, &buf, sizeof(buf));
-	key = strtol(buf, NULL, 16);
-	printf("buf:%s, key:%x\n", buf, key);
-	
-	
-	len = read(sfd, &buf, sizeof(buf));
-	code = strtol(buf, NULL, 16);
-	printf("buf:%s, code:%x\n", buf, code);
-      }
-      */
- 
-
-      /*      
-      if(buf == 0x00000000){
-	state = 1;
-	printf("pass\n");
-      }
-      */
-
-
-
-      /*
-      int i;
-      for(i = 0; i < 34; i++){
-	len = read(sfd, &buf, sizeof(buf));
-	printf("err_buf:%s\n", buf);
-      }
-      */
-
-
-      /*
-      int count = 0;
-      while(code != 0x00000000){
-
-	printf("while pass\n");
-
-	key = ntohl(buf);
-	//	    key = strtol(buf, NULL, 16);
-	printf("strtol_key:%x\n", key);
-	//code = strtol(buf, NULL, 16);
-	code = ntohl(buf);
-	printf("strtol_code:%x\n\n", code);
-      }
-      */
-
-
-      
-
-
       int turn;
       for(turn = 0; turn < 60; turn++){
 	int i;
@@ -143,59 +88,34 @@ int main(int argc, char *argv[]){
 
 	printf("===========TURN#%d============\n", turn);
 
-	/*
-	int s_key;
-	int s_code;
-	int s_id;
-	int s_value;
-	*/
 
 	for(i = 0; i < 22; i++){
 	  
-	  
-	  // TODO need to ntohl?
+
 	  len = read(sfd, &buf, sizeof(buf));
 	  
-	  //	  buf2 = ntohl(buf);
-	  
-	  //	  printf("buf%d:%s\n", i, buf);
 
 	  if(i == 0){
 
 	    key = ntohl(buf);
-	    //	    printf("buf:%x\n", buf);
-	    //sprintf(key, "%d", s_key);
-	    
 	    printf("key:%u\n", key);
-	    //printf("s_key:%d\n", s_key);
+
 	  }else if(i == 1){ 
 	    code = ntohl(buf);
-	    //printf("buf:%x\n", buf);
-	    
-	    //sprintf(code, "%d", s_code);
 	    printf("code:%u\n", code);
-	    //printf("s_code:%d\n", s_code);
+
 	  }else if(i > 1){
 	    if(i % 2 == 0){
-	    //	      companies[count].id = strtol(buf, NULL, 16);
-	    //companies[count].id = strtol(buf, NULL, 16);
 	    companies[num].id = ntohl(buf);
 	    printf("buf:%x\n", buf);
-	    //sprintf(id, "%d", s_id);
-	    //	      printf("id:%x\n", companies[count].id);
-	    //sprintf(ntohl(buf[count]), "%d", a_id);
+
 	    printf("id:%u\n", companies[num].id);
-	    //printf("s_id:%d\n", s_id);
+
 	    }else if(i % 2 == 1){
-	      //	      companies[count].value = strtol(buf, NULL, 16);
 	      companies[num].price = ntohl(buf);
-	      //sprintf(value, "%d", s_value);
-	      //sprintf(ntohl(buf[count]), "%d", a_value);
-	      //	      companies[count].value = strtol(ntohl(buf), NULL, 16);
-	      //	      printf("value:%x\n", companies[count].value);
+
 	      printf("buf:%x\n", buf);
 	      printf("price:%u\n\n", companies[num].price);
-	      //printf("s_value:%d\n", s_value);
 	      num = num + 1;
 	      
 	    }
@@ -228,20 +148,20 @@ int main(int argc, char *argv[]){
 	  len = read(sfd, &buf, sizeof(buf));
 	  if(i == 0){
 	    key = ntohl(buf);
-	    //	    printf("buf:%x\n", buf);
+
 	    printf("act_key:%u\n", key);
 	  }else if(i == 1){ 
 	    code = ntohl(buf);
-	    //printf("buf:%x\n", buf);
+
 	    printf("act_code:%u\n", code);
 	  }else if(i > 1){
 	    if(i % 2 == 0){
 	    companies[num].id = ntohl(buf);
-	    //printf("buf:%x\n", buf);
+
 	    printf("act_id:%u\n", companies[num].id);
 	    }else if(i % 2 == 1){
 	      companies[num].price = ntohl(buf);
-	      //printf("buf:%x\n", buf);
+
 	      printf("act_value:%u\n\n", companies[num].price);
 	      num = num + 1;
 	      
@@ -251,35 +171,6 @@ int main(int argc, char *argv[]){
 	  
 
 	
-
-	/*
-	write(sfd, &s_key, sizeof(s_key));
-	write(sfd, htonl("0x00000101"), sizeof("0x00000101"));
-	write(sfd, &id, sizeof(id));
-	write(sfd, &value, sizeof(value));
-	
-	
-	for(k = 0; k < 4; k++){
-	  printf("pass2%d\n", k);
-	  len = read(sfd, &buf, sizeof(buf));
-	  printf("buf:%s\n", buf);
-	}
-	*/
-	
-	/*
-	len = read(sfd, &buf, sizeof(buf));
-	
-	key = ntohl(buf);
-	//	    key = strtol(buf, NULL, 16);
-	printf("second_key:%x\n", key);
-	len = read(sfd, &buf, sizeof(buf));
-	//code = strtol(buf, NULL, 16);
-	code = ntohl(buf);
-	printf("second_code:%x\n\n", code);
-	*/
-
-
-
       }//while end
       
 
@@ -295,7 +186,7 @@ int main(int argc, char *argv[]){
 
 
 
-      //      break;
+      break;
     }
   }
 
