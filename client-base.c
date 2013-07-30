@@ -24,35 +24,109 @@ struct company{
 };
 
 
+
+
+
+void act(int sfd, struct company companies[10], int turn, uint32_t temp, uint32_t key){
+  printf("\n*****ACTION*****\n");
+
+  temp = htonl(key);
+  printf("buy_key:%u\n", temp);
+  write(sfd, &temp, sizeof(temp));
+  if(turn % 2 == 0){
+    temp = htonl(BUY);
+  }else if(turn % 2 == 1){
+    temp = htonl(SELL);
+  }
+  printf("buy_code:%u\n", temp);
+  write(sfd, &temp, sizeof(temp));
+  temp = htonl(companies[0].id);
+  printf("buy_id:%u\n", temp);
+  write(sfd, &temp, sizeof(temp));
+  temp = htonl(1);
+  printf("buy_value:%u\n\n", temp);
+  write(sfd, &temp, sizeof(temp)); 
+}
+
+
+void comfirm(size_t len, int sfd, uint32_t buf, struct company companies[10], uint32_t key, uint32_t code, int num){
+  printf("\n*****COMFIRM*****\n");
+
+  int i;
+  for(i = 0; i < 22; i++){
+    len = read(sfd, &buf, sizeof(buf));
+    if(i == 0){
+      key = ntohl(buf);
+      
+      printf("act_key:%u\n", key);
+    }else if(i == 1){ 
+      code = ntohl(buf);
+
+
+      if(code == ERR_CODE){
+	printf("Get the error code!\n");
+      }else if(code == ERR_KEY){
+	printf("Get the error key!\n");
+      }else if(code == ERR_REQ){
+	printf("Get the error request!\n");
+      }else if(code == ERR_ID){
+	printf("Get the error id!\n");
+      }else if(code == ERR_PUR){
+	printf("Cannot purchase!\n");
+      }else if(code == ERR_SAL){
+	printf("Cannot sell!\n");
+      }
+
+
+
+      
+      printf("act_code:%u\n", code);
+    }else if(i > 1){
+      if(i % 2 == 0){
+	companies[num].id = ntohl(buf);
+	
+	printf("company#%u\t", companies[num].id);
+      }else if(i % 2 == 1){
+	companies[num].price = ntohl(buf);
+	
+	printf("%u\n\n", companies[num].price);
+	num = num + 1;
+	
+      }
+    }
+  }
+  
+}
+
+
+void showResult(size_t len, int sfd, uint32_t buf){
+  printf("\n*****RESULT*****\n");
+
+  len = read(sfd, &buf, sizeof(buf));
+  printf("end_key:%u\n", ntohl(buf));
+  len = read(sfd, &buf, sizeof(buf));
+  printf("end_code:%u\n", ntohl(buf));
+  len = read(sfd, &buf, sizeof(buf));
+  printf("end_rank:%u\n", ntohl(buf));
+  len = read(sfd, &buf, sizeof(buf));
+  printf("end_budget:%u\n", ntohl(buf));
+}
+
+
 int main(int argc, char *argv[]){
   struct addrinfo hints;
   struct addrinfo *result, *rp;
 
   struct company companies[10];
 
-  int state = 0;
-  
   size_t len;
 
   uint32_t buf;
-
   uint32_t key = 0;
   uint32_t code = 0;
-
-
-
-  int number = 0;
-
-  uint32_t s_key;
-  uint32_t id;
-  uint32_t value;
-
   uint32_t temp;
 
-
-
   int s, sfd;
-
 
 
   if(argc < 3){
@@ -89,102 +163,52 @@ int main(int argc, char *argv[]){
 	printf("===========TURN#%d============\n", turn);
 
 
+
 	for(i = 0; i < 22; i++){
 	  
-
+	  
 	  len = read(sfd, &buf, sizeof(buf));
 	  
-
+	  
 	  if(i == 0){
-
+	    
 	    key = ntohl(buf);
 	    printf("key:%u\n", key);
-
+	    
 	  }else if(i == 1){ 
 	    code = ntohl(buf);
 	    printf("code:%u\n", code);
-
+	    
 	  }else if(i > 1){
 	    if(i % 2 == 0){
-	    companies[num].id = ntohl(buf);
-	    printf("buf:%x\n", buf);
-
-	    printf("id:%u\n", companies[num].id);
-
+	      companies[num].id = ntohl(buf);
+	      //     printf("buf:%x\n", buf);
+	      
+	      printf("company#%u\t", companies[num].id);
+	      
 	    }else if(i % 2 == 1){
 	      companies[num].price = ntohl(buf);
-
-	      printf("buf:%x\n", buf);
+	      
+	      // printf("buf:%x\n", buf);
 	      printf("price:%u\n\n", companies[num].price);
 	      num = num + 1;
 	      
 	    }
 	  }
 	}
-
 	
 	
-	temp = htonl(key);
-	printf("buy_key:%u\n", temp);
-	write(sfd, &temp, sizeof(temp));
-	if(turn % 2 == 0){
-	  temp = htonl(0x00000100);
-	}else if(turn % 2 == 1){
-	  temp = htonl(0x00000101);
-	}
-	printf("buy_code:%u\n", temp);
-	write(sfd, &temp, sizeof(temp));
-	temp = htonl(companies[0].id);
-	printf("buy_id:%u\n", temp);
-	write(sfd, &temp, sizeof(temp));
-	temp = htonl(10);
-	printf("buy_value:%u\n\n", temp);
-	write(sfd, &temp, sizeof(temp));
+	
+	
+	
+	act(sfd, companies, turn, temp, key);
 
-
-
-
-	for(i = 0; i < 22; i++){
-	  len = read(sfd, &buf, sizeof(buf));
-	  if(i == 0){
-	    key = ntohl(buf);
-
-	    printf("act_key:%u\n", key);
-	  }else if(i == 1){ 
-	    code = ntohl(buf);
-
-	    printf("act_code:%u\n", code);
-	  }else if(i > 1){
-	    if(i % 2 == 0){
-	    companies[num].id = ntohl(buf);
-
-	    printf("act_id:%u\n", companies[num].id);
-	    }else if(i % 2 == 1){
-	      companies[num].price = ntohl(buf);
-
-	      printf("act_value:%u\n\n", companies[num].price);
-	      num = num + 1;
-	      
-	    }
-	  }
-	}
-	  
-
+	comfirm(len, sfd, buf, companies, key, code, num);
 	
       }//while end
       
 
-      
-      len = read(sfd, &buf, sizeof(buf));
-      printf("end_key:%u\n", ntohl(buf));
-      len = read(sfd, &buf, sizeof(buf));
-      printf("end_code:%u\n", ntohl(buf));
-      len = read(sfd, &buf, sizeof(buf));
-      printf("end_rank:%u\n", ntohl(buf));
-      len = read(sfd, &buf, sizeof(buf));
-      printf("end_budget:%u\n", ntohl(buf));
-
-
+      showResult(len, sfd, buf);
 
       break;
     }
